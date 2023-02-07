@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Login</title>
+   </head>
+   
+   <body>
+    <form id="login-form">
+        <h1>Login</h1>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button type="submit">Login</button>
+      </form>
+      <script>
+        const form = document.getElementById("login-form");
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const response = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+            if(response.status === 200) {
+                    window.location.href = 'http://localhost:3000/rooms';
+            }else{
+                    alert("Error login in, please try again");
+            }
+        });
+      </script>
+    </body>
+</html>

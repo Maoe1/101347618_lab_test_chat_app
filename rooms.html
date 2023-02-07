@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Socket Example</title>
+   </head>
+   
+   <body>
+      <h1>Rooms</h1>
+      <form id="form">
+        <label for="choices">Choose a chat room:</label>
+        <select id="choices" name="choices">
+          <option value="room1">covid19</option>
+          <option value="room2">nodeJs</option>
+          <option value="room3">News</option>
+        </select>
+        <br><br>
+        <input type="submit" value="Join Chat Room">
+      </form>
+
+      <div id="chat-container" style="display:none;">
+        <form id="chat-form">
+          <input type="text" id="message-input" placeholder="Type your message here">
+          <input type="submit" value="Send">
+        </form>
+        <div id="messages"></div>
+      </div>
+      
+      <script src="/socket.io/socket.io.js"></script>
+     
+        <script>
+            const form = document.getElementById('form');
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const selectedRoom = choices.value;
+                console.log(selectedRoom)
+  
+                const socket = io('http://localhost:3000');
+                socket.emit('join room', selectedRoom);
+      
+            // Show the chat container when the user joins a room
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.style.display = 'block';
+    });
+  
+    // Code to handle form submission
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const messagesContainer = document.getElementById('messages');
+  
+    chatForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const message = messageInput.value;
+      const socket = io('http://localhost:3000');
+      socket.emit('message', message);
+      messageInput.value = '';
+
+      // Code to handle message received from the server
+        socket.on('message', (message) => {
+        const newMessage = document.createElement('p');
+        newMessage.innerHTML = message;
+        messagesContainer.appendChild(newMessage);
+      });
+    });
+  
+  </script>
+    </body>
+</html>
