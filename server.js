@@ -8,6 +8,10 @@ const mongoose = require('mongoose');
 const UserRouter = require('./UserRoutes.js');
 const PORT = 3000
 
+
+const userModel = require('./User');
+const messageModel = require('./message');
+
 //Create Server Side socket
 const io = require('socket.io')(server)
 
@@ -32,19 +36,54 @@ app.get("/login.html", (req, res) => {
 
 //Accept client request
 io.on('connection', (socket) => {
-    console.log('A user connected');
-  
-    socket.on('join room', (room) => {
-      console.log(`User joined room: ${room}`);
-      socket.join(room);
-    });
+    console.log('a user connected');
+
+    socket.on('join room', (username, room) => {
+        console.log(`user ${username} joined room ${room}`);
 
 
-    socket.on('message', (message) => {
-        console.log(`Message received: ${message}`);
       });
-
-
+    
+      socket.on('message', (message) => {
+        const currentRoom = Object.keys(socket.rooms)[1];
+        console.log(`received message ${message} in room ${currentRoom}`);
+        io.to(currentRoom).emit('message', message);
+    
+        // Find the user who sent the message
+        userModel.findOne({ socketId: socket.id }, (error, user) => {
+          if (error) {
+            console.error(error);
+          } else {
+            // Store the message in the database
+            const messageToSave = new messageModel({
+              room: currentRoom,
+              sender: user._id,
+              message: message,
+              timestamp: new Date()
+            });
+            messageToSave.save((error) => {
+              if (error) {
+                console.error(error);
+              } else {
+                console.log(`message saved to database: ${messageToSave}`);
+              }
+            });
+          }
+        });
+      });
+    
+      socket.on('disconnect', () => {
+        console.log('user disconnected');
+    
+        // Remove the user from the database
+        userModel.deleteOne({ socketId: socket.id }, (error) => {
+          if (error) {
+            console.error(error);
+          } else {
+            console.log(`user removed from database`);
+          }
+        });
+      });
     
   });
 

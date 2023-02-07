@@ -9,22 +9,36 @@
       <form id="form">
         <label for="choices">Choose a chat room:</label>
         <select id="choices" name="choices">
-          <option value="room1">covid19</option>
-          <option value="room2">nodeJs</option>
-          <option value="room3">News</option>
+          <option value="covid19">covid19</option>
+          <option value="news">nodeJs</option>
+          <option value="nodeJs">News</option>
         </select>
         <br><br>
         <input type="submit" value="Join Chat Room">
       </form>
+
+    
 
       <div id="chat-container" style="display:none;">
         <form id="chat-form">
           <input type="text" id="message-input" placeholder="Type your message here">
           <input type="submit" value="Send">
         </form>
+        <button id="leave-room-button">Leave Room</button>
         <div id="messages"></div>
       </div>
+
+      <p> or </p>
+      <button id="sign-out-button">Sign Out</button>
       
+      <script>
+        const loggedIn = localStorage.getItem('loggedIn');
+        
+        if (!loggedIn) {
+          // Redirect the user back to the sign up page if they haven't signed up.
+          window.location.href = '/login.html';
+        }
+      </script>
       <script src="/socket.io/socket.io.js"></script>
      
         <script>
@@ -60,8 +74,28 @@
         newMessage.innerHTML = message;
         messagesContainer.appendChild(newMessage);
       });
+
+      // Code to handle "Leave Room" button click
+        const leaveRoomButton = document.getElementById('leave-room-button');
+        leaveRoomButton.addEventListener('click', () => {
+             socket.emit('leave room');
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.style.display = 'none';
+        });
     });
   
+  </script>
+
+<script>
+    const signOutButton = document.getElementById('sign-out-button');
+    
+    signOutButton.addEventListener('click', () => {
+      // Remove the flag in local storage indicating that the user has signed up.
+      localStorage.removeItem('signedUp');
+      
+      // Redirect the user back to the sign up page.
+      window.location.href = '/login.html';
+    });
   </script>
     </body>
 </html>
